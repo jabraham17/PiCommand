@@ -1,0 +1,36 @@
+
+//plugins
+plugins {
+    id 'java'
+    id 'application'
+    id 'idea'
+    id 'eclipse'
+    id "com.google.protobuf" version "0.8.3"
+}
+
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    //jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.5.1'
+
+    // Use JUnit test framework
+    //testCompile 'junit:junit:4.12'
+}
+
+protobuf {
+    //config compiler
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.5.1'
+    }
+    //put it in sources direcrory
+    generateProtoTasks.generatedFilesBaseDir = 'src'
+}
+
+// Define the main class for the application
+mainClassName = 'Main'
+

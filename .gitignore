@@ -1,0 +1,15 @@
+
+#IDE stuff
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+
+#Build files
+build/
+bin/
+.gradle/
+
+#Generated proto
+src/main/proto/
