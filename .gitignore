@@ -12,4 +12,4 @@ bin/
 .gradle/
 
 #Generated proto
-src/main/proto/
+generated/

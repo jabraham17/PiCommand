@@ -28,7 +28,7 @@ protobuf {
         artifact = 'com.google.protobuf:protoc:3.5.1'
     }
     //put it in sources direcrory
-    generateProtoTasks.generatedFilesBaseDir = 'src'
+    generateProtoTasks.generatedFilesBaseDir = 'generated'
 }
 
 // Define the main class for the application
