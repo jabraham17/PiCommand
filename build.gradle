@@ -17,6 +17,7 @@ repositories {
 
 dependencies {
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.5.1'
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
 
     // Use JUnit test framework
     //testCompile 'junit:junit:4.12'
@@ -33,4 +34,40 @@ protobuf {
 
 // Define the main class for the application
 mainClassName = 'Main'
+def projectName = rootProject.name
 
+jar {
+    manifest {
+        attributes 'Main-Class': "main.${mainClassName}"
+    }
+    baseName = projectName
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+def outputDirectory = file("${rootDir}/output")
+
+task writeExecuteScript() {
+    dependsOn jar
+    doLast {
+        def runFile = new File("${buildDir}/run${projectName}.sh")
+        runFile.write "java -jar ${projectName}.jar \"\$@\""
+    }
+}
+
+task copyToOutput(type: Copy) {
+    dependsOn jar
+    dependsOn writeExecuteScript
+    destinationDir = outputDirectory
+    from(file(jar.archivePath)) {
+    }
+    from(file("${buildDir}/run${projectName}.sh")) {
+    }
+}
+
+build {
+    dependsOn copyToOutput
+}
+
+clean {
+    delete outputDirectory
+}

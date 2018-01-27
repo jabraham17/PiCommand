@@ -10,6 +10,7 @@
 build/
 bin/
 .gradle/
+output/
 
 #Generated proto
 generated/
