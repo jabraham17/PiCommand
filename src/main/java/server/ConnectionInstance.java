@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ConnectionInstance extends Thread
@@ -28,7 +27,7 @@ public class ConnectionInstance extends Thread
             boolean done = false;
             while (!done) {
                 //what will be returned
-                String output = "";
+                String output;
 
                 //read the sent data
                 String input = in.readLine();

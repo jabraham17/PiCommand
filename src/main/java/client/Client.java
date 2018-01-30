@@ -74,11 +74,11 @@ public class Client extends Thread {
         }
     }
 
-    public static void printPrompt() {
+    private static void printPrompt() {
         System.out.print(CMDColors.getSequence(ForegroundColor.BRIGHT_CYAN) + "$" + CMDColors.getSequence() + " ");
     }
 
-    public static void printServerResponse(String message) {
+    private static void printServerResponse(String message) {
         System.out.println(CMDColors.getSequence(ForegroundColor.PURPLE) + "SERVER:" + CMDColors.getSequence() + " " + message);
     }
 }
