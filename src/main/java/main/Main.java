@@ -1,11 +1,13 @@
 package main;
 
+import client.Client;
 import org.apache.commons.cli.*;
+import server.Server;
 
 public class Main {
 
     //entry point for the app
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
 
         Options options = new Options();
@@ -18,7 +20,7 @@ public class Main {
 
         options.addOption(Option.builder("s")
                 .longOpt("server")
-                .desc("starts the application as a server")
+                .desc("starts the application as a server\nnote: the '-n' option has no effect on this")
                 .hasArg(false)
                 .required(false)
                 .build());
@@ -32,10 +34,25 @@ public class Main {
 
         options.addOption(Option.builder("l")
                 .longOpt("local")
-                .desc("starts the application as both a client and server to run locally")
+                .desc("starts the application as both a client and server to run locally\nnote: the '-n' option has no effect on this")
                 .hasArg(false)
                 .required(false)
                 .build());
+
+        options.addOption(Option.builder("n")
+                .longOpt("host")
+                .desc("hostname of the computer that is hosting the server, only used for client mode\nnote: if unspecified will use 'localhost'")
+                .hasArg(true)
+                .required(false)
+                .build());
+
+        options.addOption(Option.builder("p")
+                .longOpt("port")
+                .desc("port to connect the server and client over, if not specified will use '4444'\nnote: the same port must be used for both the server and client")
+                .hasArg(true)
+                .required(false)
+                .build());
+
 
         try
         {
@@ -53,25 +70,31 @@ public class Main {
                 System.exit(1);
             }
 
+            //get port and host
+            String host = cmdLine.getOptionValue("n","localhost");
+            String port = cmdLine.getOptionValue("p", null);
+
+
             //if help
             if (cmdLine.hasOption("h")) {
-                System.out.println("Help");
-                for(Option opt : options.getOptions()) {
-                    System.out.printf("%s[%s]\t\t%s\n", opt.getOpt(), opt.getLongOpt(), opt.getDescription());
-                }
+
+                HelpFormatter formatter = new HelpFormatter();
+                formatter.printHelp("Pi Command", options);
+
                 System.exit(0);
             }
             else if(cmdLine.hasOption("server"))
             {
-                startServer();
+                startServer(port);
             }
             else if(cmdLine.hasOption("client"))
             {
-                startClient();
+                startClient(host, port);
             }
             else if(cmdLine.hasOption("local")) {
-                startServer();
-                startClient();
+                startServer(port);
+                Thread.sleep(2000);
+                startClient(host, port);
             }
         }
         catch (ParseException e) {
@@ -82,12 +105,32 @@ public class Main {
     }
 
     //returns bool for success
-    public static boolean startServer() {
-    System.out.println("HI");
-        return true;
-    }
-    public static boolean startClient() {
+    public static Server startServer(String port) {
 
-        return true;
+        Server server;
+        //use default port
+        if (port == null) {
+            server = new Server();
+        }
+        else {
+            server = new Server(port);
+        }
+        server.start();
+
+        return server;
+    }
+    public static Client startClient(String hostname, String port) {
+
+        Client client;
+        //use default port
+        if (port == null) {
+            client = new Client(hostname);
+        }
+        else {
+            client = new Client(hostname, port);
+        }
+        client.start();
+
+        return client;
     }
 }

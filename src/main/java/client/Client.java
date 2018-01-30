@@ -31,11 +31,11 @@ public class Client extends Thread {
         this.hostname = hostname;
         this.port = Integer.parseInt(port);
 
+        this.setDaemon(false);
     }
 
     @Override
     public void run() {
-        super.run();
 
         // init all resources that must be closed here
         try (Socket socket = new Socket(hostname, port);
@@ -55,7 +55,8 @@ public class Client extends Thread {
                 String input = stdIn.readLine();
                 if(input.equals("exit") || input.equals("quit")) {
                     //if the result is exit control close connection
-                    input = "exiting";
+                    input = "exit";
+                    done = true;
                 }
 
                 //send to server

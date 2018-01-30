@@ -12,7 +12,7 @@ public class CMDColors {
 
 
     //for all of the enums here that have codes to implement
-    interface ControlCode {
+    public interface ControlCode {
         public String getValue();
     }
 
@@ -130,7 +130,7 @@ public class CMDColors {
         OVERSCORE("53");
 
         //constrcutor to hold value
-        Decorators(String value) {
+        Decorator(String value) {
             this.value = value;
         }
         //the value of the enum
@@ -146,11 +146,11 @@ public class CMDColors {
     public static String getSequence(ControlCode... codes) {
         //if no codes specified, return a reset sequence
         if(codes.length == 0) {
-            return ESCAPE + Reset.ALL + END;
+            return ESCAPE + Reset.ALL.getValue() + END;
         }
 
         //start the sequence with an escape character and the first elemnt
-        String sequence = ESCAPE + codes[0];
+        String sequence = ESCAPE + codes[0].getValue();
         //loop througb reming elements and place a serpeator befoew each one
         for(int i = 1; i < codes.length; i++) {
             ControlCode code = codes[i];
