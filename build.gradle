@@ -6,6 +6,7 @@ plugins {
     id 'idea'
     id 'eclipse'
     id "com.google.protobuf" version "0.8.3"
+    id 'org.hidetake.ssh' version '2.9.0'
 }
 
 
@@ -46,28 +47,77 @@ jar {
 
 def outputDirectory = file("${rootDir}/output")
 
-task writeExecuteScript() {
-    dependsOn jar
-    doLast {
-        def runFile = new File("${buildDir}/run${projectName}.sh")
-        runFile.write "java -jar ${projectName}.jar \"\$@\""
-    }
+//make run script executable
+task runScript(type: Exec) {
+    commandLine 'chmod', '+x', 'scripts/PiCommand'
 }
-
-task copyToOutput(type: Copy) {
+task zipOutput(type: Zip) {
     dependsOn jar
-    dependsOn writeExecuteScript
+    dependsOn runScript
+    baseName = projectName
+    duplicatesStrategy = 'exclude'
     destinationDir = outputDirectory
-    from(file(jar.archivePath)) {
-    }
-    from(file("${buildDir}/run${projectName}.sh")) {
-    }
+    from(file(jar.archivePath)) {}
+    from(file("scripts/PiCommand")) {}
 }
 
-build {
-    dependsOn copyToOutput
+task unzipOutput(type: Exec) {
+    dependsOn zipOutput
+    commandLine "unzip", '-fo', "${outputDirectory}/${projectName}.zip", '-d', "${outputDirectory}/"
 }
 
 clean {
     delete outputDirectory
+    delete "generated"
 }
+build {
+    dependsOn unzipOutput
+
+}
+
+remotes {
+    pi {
+        host = '192.168.10.60'
+        user = 'pi'
+        password = 'eatsomepi'
+    }
+}
+
+
+ssh.settings {
+    knownHosts = allowAnyHosts
+}
+
+task remoteClean {
+    doLast {
+        ssh.run {
+            session(remotes.pi) {
+                def contents = "${projectName}/*"
+                def execCMD = "rm ${contents}"
+                def result = execute execCMD
+            }
+        }
+    }
+
+}
+
+task deploy {
+    dependsOn build
+    doLast {
+        ssh.run {
+            session(remotes.pi) {
+
+                def file = new File("${projectName}/${projectName}.zip")
+
+                put from: "${outputDirectory}/${projectName}.zip", into: file.path
+
+                def zipLoc = file.path
+                def execCMD = "unzip ${zipLoc} -d ${projectName}/"
+                def result = execute execCMD
+                println result
+            }
+        }
+    }
+}
+
+
