@@ -1,5 +1,7 @@
 package server;
 
+import server.commands.GPIO;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -37,11 +39,27 @@ public class ConnectionInstance extends Thread
                     done = true;
                     output = "Closed connection succesfully";
                 }
+                else if(input.contains("gpio")) {
+                    GPIO pinControl = new GPIO();
+                    String[] s = input.split(" ");
+                    //check if supplied help command
+                    if(s.length == 2 && s[1].equals("help")) {
+                        output = String.format("%s\n%s\n%s", pinControl.name(), pinControl.description(), pinControl.invocation());
+                    }
+                    //check if valud control sequence was specified
+                    else if(s.length != 3 || !pinControl.subCmdOptions().contains(s[1]) || !s[2].matches("\\d+")) {
+                        output = "Invalid Options: Try 'gpio help'";
+                    }
+                    else {
+                        output = (String) pinControl.execute(s[1], Integer.parseInt(s[2]));
+                    }
+                }
                 //uknown
                 else {
                     output = "Unknown output";
                 }
 
+                //TODO: use proto buffers so output is propeprly wirtten
                 //send the response
                 out.println(output);
             }
